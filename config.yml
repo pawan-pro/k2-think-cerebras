@@ -1,0 +1,4 @@
+# Configuration for the Cerebras CLI Agent
+api_key: "YOUR_CEREBRAS_API_KEY"
+model: "qwen-3-coder-480b"
+repo_path: "."

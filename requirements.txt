@@ -1,0 +1,6 @@
+click
+rich
+pyyaml
+httpx
+cerebras-cloud-sdk
+aiohttp
