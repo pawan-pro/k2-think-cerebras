@@ -75,6 +75,36 @@ def execute_code_from_response(response: str):
         
         for code_block in code_blocks:
             try:
+                # First, let's analyze the CSV file structure if it involves loading CSV data
+                if 'pd.read_csv' in code_block and 'treasury.csv' in code_block:
+                    # Read the CSV to understand its structure before executing the full code
+                    try:
+                        csv_df = pd.read_csv('treasury.csv')
+                        console.print(f"[bold blue]CSV Analysis:[/bold blue] Found {len(csv_df.columns)} columns: {list(csv_df.columns)}")
+                        console.print(f"[bold blue]First few rows shape:[/bold blue] {csv_df.shape}")
+                        
+                        # If the CSV doesn't have the expected columns, we should inform the user
+                        # rather than try to execute potentially incorrect code
+                        expected_date_col = None
+                        expected_value_col = None
+                        
+                        for col in csv_df.columns:
+                            if col.lower() in ['date', 'time', 'day', 'month', 'year']:
+                                expected_date_col = col
+                            if '10' in col.upper() or 'YEAR' in col.upper() or 'YIELD' in col.upper():
+                                expected_value_col = col
+                        
+                        if not expected_date_col or not expected_value_col:
+                            console.print(f"[bold yellow]Warning: The CSV doesn't have clearly identifiable date and value columns.[/bold yellow]")
+                            console.print(f"[bold yellow]Available columns: {list(csv_df.columns)}[/bold yellow]")
+                            console.print(f"[bold yellow]Possible date column: {expected_date_col}[/bold yellow]")
+                            console.print(f"[bold yellow]Possible 10Y column: {expected_value_col}[/bold yellow]")
+                            console.print(f"[bold yellow]Executing response as text for manual adjustment:[/bold yellow]")
+                            console.print(Markdown(response))
+                            return
+                    except Exception as csv_error:
+                        console.print(f"[bold yellow]Could not analyze CSV structure: {str(csv_error)}[/bold yellow]")
+                
                 # Execute the extracted code
                 exec_globals = {"pd": pd, "plt": plt}
                 exec(code_block.strip(), exec_globals)
@@ -86,7 +116,21 @@ def execute_code_from_response(response: str):
                 console.print(f"[bold green]Code executed successfully![/bold green]")
             except Exception as e:
                 console.print(f"[bold red]Error executing code: {str(e)}[/bold red]")
-                console.print(f"[bold yellow]Executing response as text instead:[/bold yellow]")
+                # Instead of falling back to text, let's try to give more helpful info
+                console.print(f"[bold yellow]The code tried to execute but encountered an issue with your specific data format.[/bold yellow]")
+                console.print(f"[bold yellow]Your CSV file might have a different structure than expected.[/bold yellow]")
+                try:
+                    # Show information about the actual CSV file
+                    df = pd.read_csv('treasury.csv')
+                    console.print(f"[bold blue]Actual CSV structure:[/bold blue]")
+                    console.print(f"  Columns: {list(df.columns)}")
+                    console.print(f"  Shape: {df.shape}")
+                    console.print(f"  Sample data:\n{df.head(3)}")
+                    console.print(f"[bold yellow]You may need to adjust the column names in the generated code.[/bold yellow]")
+                except Exception:
+                    console.print(f"[bold yellow]Could not read your CSV file to provide structure info.[/bold yellow]")
+                
+                console.print(f"[bold yellow]Here is the suggested code (you may need to modify column names):[/bold yellow]")
                 console.print(Markdown(response))
                 return
                 
