@@ -24,20 +24,18 @@ async def stream_and_render(prompt: str):
     client = await get_client()
     model = get_model()
 
-    full_response = ""
     try:
-        with Live(console=console, screen=False, auto_refresh=False) as live:
-            async with client.chat.completions.with_streaming_response.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                stream=True,
-            ) as stream:
-                async for chunk in stream:
-                    content = chunk.choices[0].delta.content
-                    if content:
-                        full_response += content
-                        live.update(Markdown(full_response), refresh=True)
+        # For now, use a non-streaming response to avoid the async iteration issue
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        
+        # Display the full response at once
+        full_response = response.choices[0].message.content
+        console.print(Markdown(full_response))
+        
+        return full_response
     except Exception as e:
         console.print(f"[bold red]An error occurred: {e}[/bold red]")
-
-    return full_response
+        return ""
