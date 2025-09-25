@@ -5,7 +5,8 @@ This repository contains a terminal-based CLI agent for interacting with the k2-
 ## Features
 
 -   **Asynchronous Processing**: All API calls are made asynchronously, ensuring the interface remains responsive.
--   **Streaming Responses**: Live rendering of API responses for immediate feedback.
+-   **Interactive Chat**: Engage in multi-turn conversations with the AI assistant.
+-   **Single Query Mode**: Send one-off queries to the API.
 -   **Configurable**: Easily configure your API key, model, and other settings via a `config.yml` file.
 -   **Rich Terminal Output**: Clean and readable output, with syntax highlighting for code.
 
@@ -45,7 +46,8 @@ python -m src.cli.main [COMMAND]
 
 ### Commands
 
--   `query`: Send a query to the Cerebras API.
+-   `query`: Send a single query to the Cerebras API.
+-   `chat`: Start an interactive chat session with the Cerebras API.
 -   `config`: Display the current configuration.
 
 ### Examples
@@ -54,6 +56,12 @@ python -m src.cli.main [COMMAND]
 
 ```bash
 python -m src.cli.main query "Write a Python function to calculate the factorial of a number."
+```
+
+**Start an interactive chat:**
+
+```bash
+python -m src.cli.main chat
 ```
 
 **Check configuration:**

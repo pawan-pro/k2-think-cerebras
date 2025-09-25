@@ -39,3 +39,25 @@ async def stream_and_render(prompt: str):
     except Exception as e:
         console.print(f"[bold red]An error occurred: {e}[/bold red]")
         return ""
+
+async def chat_with_history(messages: list):
+    """
+    Sends a conversation with message history to the Cerebras API.
+    """
+    client = await get_client()
+    model = get_model()
+
+    try:
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+        )
+        
+        # Display the full response at once
+        full_response = response.choices[0].message.content
+        console.print(f"[bold green]Assistant:[/bold green] {full_response}")
+        
+        return full_response
+    except Exception as e:
+        console.print(f"[bold red]An error occurred: {e}[/bold red]")
+        return ""
